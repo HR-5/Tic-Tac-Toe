@@ -19,6 +19,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -36,13 +37,14 @@ public class SinglePlayer extends AppCompatActivity {
     ConstraintLayout cons;
     TextView t;
     String name1, name2;
-    int n, player,check;
+    int n, player,check,flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_player);
         cons = (ConstraintLayout) findViewById(R.id.singlec);
+        flag = 0;
         singleplayer = new Singleplayer(this);
         final Switch sw = (Switch) findViewById(R.id.switch1);
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -63,6 +65,7 @@ public class SinglePlayer extends AppCompatActivity {
         if (name1.equals(""))
             Toast.makeText(getApplicationContext(), "Enter Valid Name", Toast.LENGTH_SHORT).show();
         else {
+            flag = 1;
             t1.setVisibility(View.INVISIBLE);
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(t1.getWindowToken(), 0);
@@ -79,6 +82,20 @@ public class SinglePlayer extends AppCompatActivity {
         startActivity(in);
     }
 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (flag == 2||flag ==1) {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                back(null);
+                return true;
+            }
+            return super.onKeyDown(keyCode, event);
+        }
+        else {
+            home(null);
+        }
+        return true;
+    }
+
     public void back(View view){
         Intent in = new Intent(SinglePlayer.this, SinglePlayer.class);
         startActivity(in);
@@ -90,6 +107,7 @@ public class SinglePlayer extends AppCompatActivity {
             public void run() {
                 String s = "";
                 if (n >= 9) {
+                    flag = 2;
                     s = "Match Draw";
                     MediaPlayer ring = MediaPlayer.create(SinglePlayer.this, R.raw.win2);
                     ring.start();

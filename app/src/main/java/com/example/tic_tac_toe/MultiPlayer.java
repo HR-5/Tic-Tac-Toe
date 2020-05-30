@@ -22,6 +22,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -45,7 +46,7 @@ public class MultiPlayer extends AppCompatActivity {
     TextView t;
     String name1,name2;
     ArrayList<String> names = new ArrayList<>();
-    int n,player,size;
+    int n,player,size,flag;
     ArrayList<Player> pdetail;
 
     static class Player implements Comparable<Player>{
@@ -70,6 +71,7 @@ public class MultiPlayer extends AppCompatActivity {
         pdetail = new ArrayList<Player>();
         SharedPreferences prefs = this.getSharedPreferences("myPrefsKey", Context.MODE_PRIVATE);
         size = prefs.getInt("size",0);
+        flag = 0;
         for (int i=0;i<size;i++){
             Player pd = new Player();
             pd.pscore = prefs.getInt("score_"+i,0);
@@ -85,6 +87,7 @@ public class MultiPlayer extends AppCompatActivity {
             s = s.toUpperCase();
             names.add(s);
         }
+        flag = 1;
         setContentView(R.layout.recyclerview);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycle);
         RecyclerAdapter adapter = new RecyclerAdapter(names,this);
@@ -95,6 +98,19 @@ public class MultiPlayer extends AppCompatActivity {
     public void back(View view){
         Intent in = new Intent(MultiPlayer.this, MultiPlayer.class);
         startActivity(in);
+    }
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (flag == 2||flag == 1 ||flag == 3) {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                back(null);
+                return true;
+            }
+            return super.onKeyDown(keyCode, event);
+        }
+        else {
+            home(null);
+        }
+        return true;
     }
 
     public void play(View view){
@@ -107,6 +123,8 @@ public class MultiPlayer extends AppCompatActivity {
         else if(name2.compareTo(name1)==0)
             Toast.makeText(getApplicationContext(),"Enter Different Names",Toast.LENGTH_SHORT).show();
         else {
+            flag = 3;
+            Button btn = (Button) findViewById(R.id.button2);
             t1.setVisibility(View.INVISIBLE);
             t2.setVisibility(View.INVISIBLE);
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -115,6 +133,7 @@ public class MultiPlayer extends AppCompatActivity {
             imm1.hideSoftInputFromWindow(t2.getWindowToken(), 0);
             Button b = (Button) findViewById(R.id.button);
             b.setVisibility(View.INVISIBLE);
+            btn.setVisibility(View.INVISIBLE);
             cons.addView(multiPlayer);
         }
     }
@@ -126,6 +145,7 @@ public class MultiPlayer extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                flag =2;
                 String s = "";
                 if(n==9) {
                     s = "Match Draw";
